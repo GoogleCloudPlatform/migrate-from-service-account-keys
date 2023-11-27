@@ -1,0 +1,74 @@
+# bash ignores
+temp/
+source.env
+recsExport.yaml
+project_roles.txt
+org_roles.txt
+
+# node ignores
+node_modules
+
+# Eclipse metafiles
+.project
+.pydevproject
+
+# Pycharm metafiles
+.idea/*
+
+# Visual Studio Code metafiles
+.vscode/*
+
+# Compiled python
+*.pyc
+
+# Compiled protobuf
+*_pb2.py
+*_pb2_grpc.py
+!google/cloud/asset/v1/*_pb2.py
+
+# Miscellaneous
+.DS_Store
+.*swp
+
+# Possible credentials. Don't ignore all json files
+# though, because some are used for schema definitions.
+/*.json
+install/gcp/*.json
+
+# Scripts we don't want to commit
+scripts/dev*.sh
+run_server.sh
+run_client.sh
+
+# User-edited configs
+deployment-templates/*.yaml
+configs/*.yaml
+configs/server/*.yaml
+configs/client/*.yaml
+
+# Build/dist
+.eggs/
+*.egg/
+*.egg-info*
+build/lib/
+dist/
+out/
+
+# Coverage
+.coverage
+htmlcov/
+
+# VSCode Metadata
+.vscode/
+
+# Kitchen and Terraform files
+.terraform/
+.kitchen/
+**/tls_private_key
+terraform.tfstate.d/
+terraform.tfstate*
+terraform/.terraform.tfstate.lock.info
+dev.tfvars
+
+# SSH key
+sshkey

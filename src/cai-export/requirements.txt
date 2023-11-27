@@ -1,0 +1,6 @@
+google-cloud-storage>=2.5.0
+google-cloud-asset>=3.14.2
+google-cloud-resource-manager>=1.6.3
+google-cloud-bigquery>=3.3.5
+functions-framework>=3.2.0
+flask>=1.0.2

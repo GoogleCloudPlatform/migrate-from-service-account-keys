@@ -1,0 +1,9 @@
+roles/bigquery.admin
+roles/cloudfunctions.admin
+roles/cloudscheduler.admin
+roles/iam.serviceAccountAdmin
+roles/iam.serviceAccountUser
+roles/resourcemanager.projectIamAdmin
+roles/serviceusage.serviceUsageAdmin
+roles/storage.admin
+roles/workflows.admin
