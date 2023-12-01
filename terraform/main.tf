@@ -34,10 +34,6 @@ module "cai_sa_analyzer" {
   workflow_schedule    = var.sa_key_schedule
   org_resource_postfix = random_integer.org_resource_postfix.result
   provision_org_iam    = var.provision_org_iam
-
-  depends_on = [
-    google_project_service.services
-  ]
 }
 
 data "google_project" "sa_key_usage" {

@@ -13,5 +13,5 @@
 # limitations under the License.
 
 
-org_id      = "YOUR_ORG_ID"
-project_id  = "YOUR_PROJECT_ID"
+org_id     = "YOUR_ORG_ID"
+project_id = "YOUR_PROJECT_ID"

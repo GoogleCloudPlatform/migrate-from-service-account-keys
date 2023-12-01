@@ -25,10 +25,10 @@ resource "random_integer" "cai_bucket_postfix" {
 }
 
 resource "google_storage_bucket" "cai_code_bucket" {
-  name     = "code-bucket-${random_integer.cai_bucket_postfix.result}"
-  location = var.region
+  name                        = "code-bucket-${random_integer.cai_bucket_postfix.result}"
+  location                    = var.region
   uniform_bucket_level_access = true
-  public_access_prevention = "enforced"
+  public_access_prevention    = "enforced"
 }
 
 

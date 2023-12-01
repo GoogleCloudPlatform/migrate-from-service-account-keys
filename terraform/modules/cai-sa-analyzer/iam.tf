@@ -100,7 +100,7 @@ resource "google_organization_iam_custom_role" "custom_cai_export_org_role" {
 resource "google_organization_iam_member" "cai_export_organization_binding" {
   for_each = var.provision_org_iam ? {
     "roles/resourcemanager.organizationViewer" : "roles/resourcemanager.organizationViewer",
-    "${var.custom_cai_org_role}" : "organizations/${var.org_id}/roles/${var.custom_cai_org_role}_${var.org_resource_postfix}"
+    var.custom_cai_org_role : "organizations/${var.org_id}/roles/${var.custom_cai_org_role}_${var.org_resource_postfix}"
   } : {}
   org_id = var.org_id
   role   = each.value
@@ -114,13 +114,13 @@ resource "google_organization_iam_member" "access_analyzer_organization_binding"
   } : {}
   org_id = var.org_id
   role   = each.value
-  member  = "serviceAccount:${google_service_account.access_analyzer_service_account.email}"
+  member = "serviceAccount:${google_service_account.access_analyzer_service_account.email}"
 }
 
 resource "google_project_service_identity" "cai_sa" {
   provider = google-beta
-  project = data.google_project.sa_key_usage.project_id
-  service = "cloudasset.googleapis.com"
+  project  = data.google_project.sa_key_usage.project_id
+  service  = "cloudasset.googleapis.com"
 }
 
 resource "google_project_iam_member" "cloud_asset_service_agent" {

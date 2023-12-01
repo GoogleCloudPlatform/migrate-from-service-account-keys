@@ -43,7 +43,7 @@ resource "google_workflows_workflow" "cai_sa_workflow" {
   region          = var.region
   description     = "Workflow to export CAI to a partitioned table and analyze SA keys"
   service_account = google_service_account.workflows_service_account.email
-  depends_on      = [
+  depends_on = [
     google_project_iam_member.workflows_iam
   ]
   source_contents = <<-EOF

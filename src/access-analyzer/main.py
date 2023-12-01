@@ -12,48 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Modules to work with Google Cloud services locally"""
 import os
+
 import analyze
 import functions_framework
 from flask import jsonify
 from google.cloud import bigquery
 
-project_id = os.environ.get('PROJECT_ID')
-dataset = os.environ.get('RESOURCE_DATASET')
-table_prefix = os.environ.get('TABLE_PREFIX')
-destination_table = os.environ.get('DEST_TABLE')
+project_id = os.environ.get("PROJECT_ID")
+dataset = os.environ.get("RESOURCE_DATASET")
+table_prefix = os.environ.get("TABLE_PREFIX")
+destination_table = os.environ.get("DEST_TABLE")
 
 
 @functions_framework.http
-def main(request):
+def main():
+    """Provides usage and recommendation data to key data"""
     client = bigquery.Client()
     sa_keys = get_keys(client)
     projects = set()
     key_dict = {}
     access_data = []
     for row in sa_keys:
-        key_dict[row['key']] = {
-            'project': row['project_id'],
-            'principalName': row['principal_name'],
-            'keys': {
-                'keyId': row['key'],
-                'creationTime': str(row['valid_after_time']),
-                'lastUse': None,
+        key_dict[row["key"]] = {
+            "project": row["project_id"],
+            "principalName": row["principal_name"],
+            "keys": {
+                "keyId": row["key"],
+                "creationTime": str(row["valid_after_time"]),
+                "lastUse": None,
             },
-            'requestTime': str(row['request_time']),
-            'recommenderSubtype': None,
-            'recommenderDescription': None,
-            'recommenderPriority': None,
-            'recommenderRevokedIamPermissionsCount': None,
-            'associatedRecommendation': None,
+            "requestTime": str(row["request_time"]),
+            "recommenderSubtype": None,
+            "recommenderDescription": None,
+            "recommenderPriority": None,
+            "recommenderRevokedIamPermissionsCount": None,
+            "associatedRecommendation": None,
         }
-        projects.add(row['project_id'])
+        projects.add(row["project_id"])
     for project in projects:
         analysis_data = analyze.get_policy_analyzer_project(project)
         if analysis_data:
             for data in analysis_data:
-                if data['keys']['keyId'] in key_dict:
-                    key_dict[data['keys']['keyId']].update(data)
+                if data["keys"]["keyId"] in key_dict:
+                    key_dict[data["keys"]["keyId"]].update(data)
     access_data = list(key_dict.values())
     if not access_data:
         print("No new rows to add.")
@@ -69,17 +72,19 @@ def main(request):
 
 
 def get_keys(bq_client):
+    """Get key data from BQ tables"""
     cai_table_query = bq_client.query(
-        f'SELECT\n'
+        f"SELECT\n"
         f'REGEXP_EXTRACT(name, "projects/(.*)/serviceAccounts") AS project_id,\n'
         f'REGEXP_EXTRACT(resource.data.name, "serviceAccounts/(.*)/keys") AS principal_name,\n'
         f'REGEXP_EXTRACT(name, "keys/(.*)") AS key,\n'
-        f'resource.data.validAfterTime valid_after_time,\n'
-        f'requestTime AS request_time\n'
-        f'FROM `{project_id}.{dataset}.{table_prefix}_iam_googleapis_com_ServiceAccountKey`\n'
-        f'WHERE DATE(requestTime) = (\n'
-        f'SELECT CAST(MAX(requestTime) AS DATE) FROM `{project_id}.{dataset}.{table_prefix}_iam_googleapis_com_ServiceAccountKey`\n'
-        f')\n'
+        f"resource.data.validAfterTime valid_after_time,\n"
+        f"requestTime AS request_time\n"
+        f"FROM `{project_id}.{dataset}.{table_prefix}_iam_googleapis_com_ServiceAccountKey`\n"
+        f"WHERE DATE(requestTime) = (\n"
+        f"SELECT CAST(MAX(requestTime) AS DATE) \
+        FROM `{project_id}.{dataset}.{table_prefix}_iam_googleapis_com_ServiceAccountKey`\n"
+        f")\n"
         f'AND resource.data.keyType like "USER_MANAGED"'
     )
     sa_key_table = cai_table_query.result()

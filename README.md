@@ -1,11 +1,19 @@
 # Migrate from service account keys to more secure authentication methods
 
-One common authentication method to access Google Cloud services is using a [service account key](https://cloud.google.com/iam/docs/keys-create-delete), but service account keys create a security risk because an attacker or malicious insider could abuse the permissions of the service account if the credentials are exposed. However, in many cases, you can authenticate with [more secure alternatives to service account keys](https://cloud.google.com/docs/authentication#auth-decision-tree). This repo produces a data pipeline to help you assess service account key usage, as described in the Assess phase of the Google Cloud documentation [migrate from service account keys to more secure alternatives](https://cloud.google.com/iam/docs/migrate-from-service-account-keys).
+One common authentication method to access Google Cloud services is using a
+[service account key](https://cloud.google.com/iam/docs/keys-create-delete),
+but service account keys create a security risk because an attacker or
+malicious insider could abuse the permissions of the service account if the
+credentials are exposed. However, in many cases, you can authenticate with
+[more secure alternatives to service account keys](https://cloud.google.com/docs/authentication#auth-decision-tree).
+This repository produces a data pipeline to help you assess service account key usage,
+as described in the Assess phase of the Google Cloud documentation
+[migrate from service account keys to more secure alternatives](https://cloud.google.com/iam/docs/migrate-from-service-account-keys).
 
 Google Cloud provides several services to help you assess where and how service account keys are in use in your organization.
- - [Cloud Asset Inventory](https://cloud.google.com/asset-inventory/docs/overview) provides data of resources in your organization.
- - [Activity Analyzer](https://cloud.google.com/policy-intelligence/docs/activity-analyzer-service-account-authentication) shows you when your service accounts and keys were last used to call a Google API
- - [IAM Recommender](https://cloud.google.com/policy-intelligence/docs/review-apply-role-recommendations) creates recommendations for IAM policies that grant excessive and unused privileges.
+- [Cloud Asset Inventory](https://cloud.google.com/asset-inventory/docs/overview) provides data of resources in your organization.
+- [Activity Analyzer](https://cloud.google.com/policy-intelligence/docs/activity-analyzer-service-account-authentication) shows you when your service accounts and keys were last used to call a Google API
+- [IAM Recommender](https://cloud.google.com/policy-intelligence/docs/review-apply-role-recommendations) creates recommendations for IAM policies that grant excessive and unused privileges.
 
  By deploying the code in this repository, you will create a data pipeline that combines information from these sources into a single table. You can query this table or visualize it in your preferred dashboard tools to help assess where keys are used and how to improve your security stance.
 
@@ -47,9 +55,9 @@ The following sections introduce the steps necessary to deploy this sample code.
 
 3. Make sure that [billing is enabled for your Google Cloud project](https://cloud.google.com/billing/docs/how-to/verify-billing-enabled#console).
 
-4. Grant IAM roles at the project level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repo has the minimum necessary privilege at the project.
-    1.  Replace `PROJECT_ID` with your project ID.
-    1.  Replace `PRINCIPAL`with the identity used to deploy the repo, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
+4. Grant IAM roles at the project level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the project.
+   - Replace `PROJECT_ID` with your project ID.
+   - Replace `PRINCIPAL`with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
 ```bash
 cat << EOF > project_roles.txt
 roles/bigquery.admin
@@ -65,7 +73,7 @@ EOF
 
 #replace this with your project ID
 export PROJECT_ID=<PROJECT_ID>
-#replace this with the identity used to deploy the repo, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
+#replace this with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
 export PRINCIPAL=<YOUR_IDENTITY>
 
 for ROLE in $(cat project_roles.txt)
@@ -74,10 +82,10 @@ do
 done
 ```
 
-5. Grant roles at the organization level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repo has the minimum necessary privilege at the organization.
-    1. Note: If you don't have the ability to grant roles at the organization level, you will need to take additional manual steps in the Terraform deployment stage and work with your organization admin to manually configure org-level IAM policies and enable services.
-    1.  Replace `ORG_ID` with your organization ID.
-    1.  Replace `PRINCIPAL`with the identity used to deploy the repo, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
+5. Grant roles at the organization level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the organization.
+   - Note: If you don't have the ability to grant roles at the organization level, you will need to take additional manual steps in the Terraform deployment stage and work with your organization admin to manually configure org-level IAM policies and enable services.
+   - Replace `ORG_ID` with your organization ID.
+   - Replace `PRINCIPAL`with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
 
 ```bash
 cat << EOF > org_roles.txt
@@ -87,7 +95,7 @@ EOF
 
 #replace this with your org ID
 export ORG_ID=<ORG_ID>
-#replace this with the identity used to deploy the repo, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
+#replace this with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
 export PRINCIPAL=<YOUR_IDENTITY>
 
 for ROLE in $(cat org_roles.txt)
@@ -117,7 +125,7 @@ Consider how you will enable these services in future projects as well. It is re
 
 1. From your terminal, clone this repository and navigate into the `/terraform` directory by running the following commands:
 
-```
+```bash
 git clone https://github.com/GoogleCloudPlatform/migrate-from-service-account-keys
 cd migrate-from-service-account-keys/terraform
 ```
@@ -128,7 +136,7 @@ cd migrate-from-service-account-keys/terraform
 
 4. (Optional) If you are unable to grant IAM roles at the organization node, set the variable `provision_org_iam: false`. When this variable is set, Terraform will not deploy the following IAM resources:
 
-```
+```bash
 resource "google_organization_iam_custom_role" "custom_cai_export_org_role" { ... }
 resource "google_organization_iam_binding" "cai_export_organization_binding" { ... }
 resource "google_organization_iam_member" "access_analyzer_organization_binding" { ... }

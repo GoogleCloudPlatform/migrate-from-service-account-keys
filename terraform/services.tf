@@ -15,7 +15,8 @@
 resource "google_project_service" "cloudresourcemanager" {
   project            = var.project_id
   disable_on_destroy = false
-  service = "cloudresourcemanager.googleapis.com"
+  service            = "cloudresourcemanager.googleapis.com"
+
 }
 
 resource "google_project_service" "services" {
@@ -34,7 +35,8 @@ resource "google_project_service" "services" {
     "run.googleapis.com",
     "workflows.googleapis.com",
   ])
-  service = each.value
-  depends_on = [ google_project_service.cloudresourcemanager ]
+  service    = each.value
+  depends_on = [google_project_service.cloudresourcemanager]
+
 }
 
