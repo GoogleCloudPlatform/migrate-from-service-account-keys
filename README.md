@@ -107,9 +107,6 @@ done
 6. Run the following bootstrap script to enable necessary APIs across all projects in your organization. Although the services required by your Terraform deployment are enabled in a single project as part of the Terraform code, querying data from the Recommender and Policy Analyzer APIs requires an additional enablement step for other projects.
 
 ```bash
-# Replace this with your organization ID
-ORG_ID=YOUR_ORG_ID
-
 # Loop through all projects in the organization
 for PROJECT in $(gcloud alpha projects list --organization=$ORG_ID --format="value(projectId)")
 do

@@ -20,6 +20,7 @@ node_modules
 
 # Compiled python
 *.pyc
+.venv/
 
 # Compiled protobuf
 *_pb2.py

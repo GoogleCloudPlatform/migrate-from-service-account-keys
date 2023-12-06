@@ -100,7 +100,7 @@ resource "google_organization_iam_custom_role" "custom_cai_export_org_role" {
 resource "google_organization_iam_member" "cai_export_organization_binding" {
   for_each = var.provision_org_iam ? {
     "roles/resourcemanager.organizationViewer" : "roles/resourcemanager.organizationViewer",
-    var.custom_cai_org_role : "organizations/${var.org_id}/roles/${var.custom_cai_org_role}_${var.org_resource_postfix}"
+    (var.custom_cai_org_role) : "organizations/${var.org_id}/roles/${var.custom_cai_org_role}_${var.org_resource_postfix}"
   } : {}
   org_id = var.org_id
   role   = each.value

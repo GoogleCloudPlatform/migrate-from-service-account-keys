@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Modules to work with Google Cloud services locally"""
 import os
 
 import analyze
@@ -27,8 +26,7 @@ destination_table = os.environ.get("DEST_TABLE")
 
 
 @functions_framework.http
-def main():
-    """Provides usage and recommendation data to key data"""
+def main(self):
     client = bigquery.Client()
     sa_keys = get_keys(client)
     projects = set()
@@ -72,7 +70,6 @@ def main():
 
 
 def get_keys(bq_client):
-    """Get key data from BQ tables"""
     cai_table_query = bq_client.query(
         f"SELECT\n"
         f'REGEXP_EXTRACT(name, "projects/(.*)/serviceAccounts") AS project_id,\n'
@@ -82,8 +79,8 @@ def get_keys(bq_client):
         f"requestTime AS request_time\n"
         f"FROM `{project_id}.{dataset}.{table_prefix}_iam_googleapis_com_ServiceAccountKey`\n"
         f"WHERE DATE(requestTime) = (\n"
-        f"SELECT CAST(MAX(requestTime) AS DATE) \
-        FROM `{project_id}.{dataset}.{table_prefix}_iam_googleapis_com_ServiceAccountKey`\n"
+        f"SELECT CAST(MAX(requestTime) AS DATE) FROM \
+            `{project_id}.{dataset}.{table_prefix}_iam_googleapis_com_ServiceAccountKey`\n"
         f")\n"
         f'AND resource.data.keyType like "USER_MANAGED"'
     )

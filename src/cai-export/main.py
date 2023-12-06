@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Modules to work with Google Cloud services locally"""
 import os
 
 import functions_framework
@@ -21,8 +20,7 @@ from google.cloud import asset_v1
 
 
 @functions_framework.http
-def main():
-    """Function to write service account key data from asset inventory to BQ"""
+def main(request):
     org_id = os.environ.get("ORG_ID")
     project_id = os.environ.get("PROJECT_ID")
     resource_dataset = os.environ.get("RESOURCE_DATASET")
@@ -58,9 +56,9 @@ def main():
         }
     }
 
-    for config, field in configs.items():
-        output_config.bigquery_destination.dataset = field["destination"]
-        field["response"] = client.export_assets(
+    for config in configs:
+        output_config.bigquery_destination.dataset = configs[config]["destination"]
+        configs[config]["response"] = client.export_assets(
             request={
                 "parent": parent,
                 "content_type": configs[config]["content_type"],
