@@ -36,11 +36,9 @@ def main(self):
         key_dict[row["key"]] = {
             "project": row["project_id"],
             "principalName": row["principal_name"],
-            "keys": {
-                "keyId": row["key"],
-                "creationTime": str(row["valid_after_time"]),
-                "lastUse": None,
-            },
+            "keyId": row["key"],
+            "keyCreationTime": str(row["valid_after_time"]),
+            "keyLastUse": None,
             "requestTime": str(row["request_time"]),
             "recommenderSubtype": None,
             "recommenderDescription": None,
@@ -53,8 +51,8 @@ def main(self):
         analysis_data = analyze.get_policy_analyzer_project(project)
         if analysis_data:
             for data in analysis_data:
-                if data["keys"]["keyId"] in key_dict:
-                    key_dict[data["keys"]["keyId"]].update(data)
+                if data["keyId"] in key_dict:
+                    key_dict[data["keyId"]].update(data)
     access_data = list(key_dict.values())
     if not access_data:
         print("No new rows to add.")
@@ -75,7 +73,7 @@ def get_keys(bq_client):
         f'REGEXP_EXTRACT(name, "projects/(.*)/serviceAccounts") AS project_id,\n'
         f'REGEXP_EXTRACT(resource.data.name, "serviceAccounts/(.*)/keys") AS principal_name,\n'
         f'REGEXP_EXTRACT(name, "keys/(.*)") AS key,\n'
-        f"resource.data.validAfterTime valid_after_time,\n"
+        f"resource.data.validAfterTime AS valid_after_time,\n"
         f"requestTime AS request_time\n"
         f"FROM `{project_id}.{dataset}.{table_prefix}_iam_googleapis_com_ServiceAccountKey`\n"
         f"WHERE DATE(requestTime) = (\n"

@@ -173,7 +173,7 @@ The following sections introduce questions you can answer by querying this datas
 
 ```sql
 SELECT
-  COUNT(Keys.keyID) as keys
+  COUNT(keyID) as keys
 FROM `PROJECT_ID.sa_key_usage.key_usage`
 WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
 ```
@@ -185,7 +185,7 @@ This number can be useful as a high-level metric to track progress as you migrat
 SELECT
   project as project,
   principalName as service_account,
-  COUNT(Keys.keyID) as keys
+  COUNT(keyID) as keys
 FROM `PROJECT_ID.sa_key_usage.key_usage`
 WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
 GROUP BY 1,2
@@ -200,13 +200,13 @@ When remediating workloads that currently use service account keys, you need to 
 SELECT
   project as project,
   principalName as service_account,
-  Keys.keyID as keyID,
-  Keys.creationTime
+  keyID as keyID,
+  keyCreationTime
 FROM `PROJECT_ID.sa_key_usage.key_usage`
 WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
 #filter to keys that have not been used, or created before usage data is likely to be available
-AND keys.lastUse is NULL
-AND keys.creationTime < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY)
+AND keyLastUse is NULL
+AND keyCreationTime < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY)
 ```
 
 These keys are likely candidates to clean up without further remediation work to existing workloads.

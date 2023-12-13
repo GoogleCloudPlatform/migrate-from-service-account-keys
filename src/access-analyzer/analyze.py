@@ -35,17 +35,15 @@ def get_policy_analyzer_project(project_id):
                 name = activity["fullResourceName"].split("/")
                 sa_email = name[6]
                 sa_data = {
-                    "keys": {
-                        "keyId": name[8],
-                        "lastUse": None,
-                    },
+                    "keyId": name[8],
+                    "keyLastUse": None,
                     "recommenderSubtype": None,
                     "recommenderDescription": None,
                     "recommenderRevokedIamPermissionsCount": None,
                     "recommenderPriority": None,
                     "associatedRecommendation": None,
                 }
-                sa_data["keys"]["lastUse"] = activity["activity"].get(
+                sa_data["keyLastUse"] = activity["activity"].get(
                     "lastAuthenticatedTime", None
                 )
                 recommendations = get_recommendations(project_id, sa_email)
@@ -54,15 +52,15 @@ def get_policy_analyzer_project(project_id):
                 keyactivity.append(sa_data)
 
     response = authed_session.get(
-        f"https://policyanalyzer.googleapis.com/v1/projects/\
-            {project_id}/locations/global/activityTypes/serviceAccountKeyLastAuthentication/activities:query"
+        f"https://policyanalyzer.googleapis.com/v1/projects/{project_id}/"
+        + "locations/global/activityTypes/serviceAccountKeyLastAuthentication/activities:query"
     ).json()
     process_keyactivity(response)
     while "nextPageToken" in response:
         params = {"pageToken": response["nextPageToken"]}
         response = authed_session.get(
-            f"https://policyanalyzer.googleapis.com/v1/projects/\
-                {project_id}/locations/global/activityTypes/serviceAccountKeyLastAuthentication/activities:query",
+            f"https://policyanalyzer.googleapis.com/v1/projects/{project_id}/"
+            + "locations/global/activityTypes/serviceAccountKeyLastAuthentication/activities:query",
             params=params,
         ).json()
         process_keyactivity(response)
@@ -73,8 +71,8 @@ def get_recommendations(project_id, sa_email):
     authed_session = AuthorizedSession(cred)
     data = {}
     response = authed_session.get(
-        f"https://recommender.googleapis.com/v1/projects/\
-            {project_id}/locations/global/recommenders/google.iam.policy.Recommender/recommendations"
+        f"https://recommender.googleapis.com/v1/projects/{project_id}/"
+        + "locations/global/recommenders/google.iam.policy.Recommender/recommendations"
     ).json()
     if response and "error" not in response:
         for recommendation in response["recommendations"]:
