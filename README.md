@@ -169,13 +169,13 @@ You can then undo the remaining changes, including service enablement and the bo
 
 The following sections introduce questions you can answer by querying this dataset while preparing for your migration. [Run an interactive query in BigQuery](https://cloud.google.com/bigquery/docs/running-queries#queries) and replace `PROJECT_ID` in the `FROM` statement with the value of your project ID.
 
-### How many persistent keys have been created?
+### How many persistent keys have been created, as of a?
 
 ```sql
 SELECT
-  COUNT(Keys.keyID) as keys
+  COUNT(keyID) as keys
 FROM `PROJECT_ID.sa_key_usage.key_usage`
-WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
+WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("YYYY-MM-DD")
 ```
 This number can be useful as a high-level metric to track progress as you migrate away from keys.
 
@@ -185,9 +185,9 @@ This number can be useful as a high-level metric to track progress as you migrat
 SELECT
   project as project,
   principalName as service_account,
-  COUNT(Keys.keyID) as keys
+  COUNT(keyID) as keys
 FROM `PROJECT_ID.sa_key_usage.key_usage`
-WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
+WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("YYYY-MM-DD")
 GROUP BY 1,2
 ```
 
@@ -200,13 +200,13 @@ When remediating workloads that currently use service account keys, you need to 
 SELECT
   project as project,
   principalName as service_account,
-  Keys.keyID as keyID,
-  Keys.creationTime
+  keyID,
+  KeyCreationTime
 FROM `PROJECT_ID.sa_key_usage.key_usage`
-WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
+WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("YYYY-MM-DD")
 #filter to keys that have not been used, or created before usage data is likely to be available
-AND keys.lastUse is NULL
-AND keys.creationTime < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY)
+AND keyLastUse is NULL
+AND keyCreationTime < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY)
 ```
 
 These keys are likely candidates to clean up without further remediation work to existing workloads.
@@ -222,7 +222,7 @@ SELECT
   recommenderPriority,
   recommenderRevokedIamPermissionsCount
 FROM `PROJECT_ID.sa_key_usage.key_usage`
-WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
+WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("YYYY-MM-DD")
 ORDER BY recommenderRevokedIamPermissionsCount desc
 ```
 

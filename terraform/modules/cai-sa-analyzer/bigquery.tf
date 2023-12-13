@@ -28,11 +28,9 @@ locals {
   sa_key_schema = jsonencode([
     { name = "project", type = "STRING" },
     { name = "principalName", type = "STRING" },
-    { name = "keys", type = "RECORD", fields = [
-      { name = "keyId", type = "STRING" },
-      { name = "creationTime", type = "TIMESTAMP" },
-      { name = "lastUse", type = "TIMESTAMP" },
-    ] },
+    { name = "keyId", type = "STRING" },
+    { name = "keyCreationTime", type = "TIMESTAMP" },
+    { name = "keyLastUse", type = "TIMESTAMP" },
     { name = "requestTime", type = "TIMESTAMP" },
     { name = "recommenderSubtype", type = "STRING" },
     { name = "recommenderDescription", type = "STRING" },
