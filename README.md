@@ -55,7 +55,13 @@ The following sections introduce the steps necessary to deploy this sample code.
 
 3. Make sure that [billing is enabled for your Google Cloud project](https://cloud.google.com/billing/docs/how-to/verify-billing-enabled#console).
 
-4. Grant IAM roles at the project level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the project.
+4. Enable the Cloud Resource Manager API by running the following command in your terminal. Most API enablement is managed in the Terraform code, but this API is a prerequisite for this code sample to run properly.
+
+```bash
+gcloud services enable cloudresourcemanager.googleapis.com
+```
+
+5. Grant IAM roles at the project level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the project.
    - Replace `PROJECT_ID` with your project ID.
    - Replace `PRINCIPAL`with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
 ```bash
@@ -173,9 +179,9 @@ The following sections introduce questions you can answer by querying this datas
 
 ```sql
 SELECT
-  COUNT(keyID) as keys
+COUNT(keyID) as keys
 FROM `PROJECT_ID.sa_key_usage.key_usage`
-WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
+WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("YYYY-MM-DD")
 ```
 This number can be useful as a high-level metric to track progress as you migrate away from keys.
 
@@ -187,7 +193,7 @@ SELECT
   principalName as service_account,
   COUNT(keyID) as keys
 FROM `PROJECT_ID.sa_key_usage.key_usage`
-WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
+WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("YYYY-MM-DD")
 GROUP BY 1,2
 ```
 
@@ -222,7 +228,7 @@ SELECT
   recommenderPriority,
   recommenderRevokedIamPermissionsCount
 FROM `PROJECT_ID.sa_key_usage.key_usage`
-WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("2023-09-07")
+WHERE TIMESTAMP_TRUNC(requestTime, DAY) = TIMESTAMP("YYYY-MM-DD")
 ORDER BY recommenderRevokedIamPermissionsCount desc
 ```
 
