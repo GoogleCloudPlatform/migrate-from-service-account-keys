@@ -92,9 +92,12 @@ variable "custom_cai_org_role" {
 # Cloud Functions
 
 variable "path_prefix" {
-  description = "Path prefix from terraform directory to cai-sa-analyzer submodule"
-  type        = string
-  default     = "."
+  description = <<EOT
+Path prefix to the folder where src/cai-export and src/access-analyzer are located.
+Leave empty if the code can be found in its default location. Use "." for a relative path.
+EOT
+  type        = optional(string)
+  default     = ""
 }
 
 

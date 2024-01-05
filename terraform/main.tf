@@ -27,7 +27,7 @@ module "cai_sa_analyzer" {
   org_id               = var.org_id
   project_id           = data.google_project.sa_key_usage.project_id
   region               = var.region
-  path_prefix          = "../"
+  path_prefix          = var.code_path_prefix
   bq_location          = var.bq_location
   cai_dataset_id       = var.cai_dataset_id
   key_usage_dataset_id = var.key_usage_dataset_id
