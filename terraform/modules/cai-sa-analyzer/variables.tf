@@ -96,7 +96,7 @@ variable "path_prefix" {
 Path prefix to the folder where src/cai-export and src/access-analyzer are located.
 Leave empty if the code can be found in its default location. Use "." for a relative path.
 EOT
-  type        = optional(string)
+  type        = string
   default     = ""
 }
 
