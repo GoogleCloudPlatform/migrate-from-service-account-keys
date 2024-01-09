@@ -37,7 +37,7 @@ resource "google_storage_bucket" "cai_code_bucket" {
 data "archive_file" "cai_export_zip" {
   type        = "zip"
   output_path = "/tmp/cai-export.zip"
-  source_dir  = var.path_prefix ? "${var.path_prefix}/src/export" : "${path.module}../../../../src/cai-export/"
+  source_dir  = var.path_prefix != "" ? "${var.path_prefix}/src/export" : "${path.module}../../../../src/cai-export/"
 }
 
 resource "google_storage_bucket_object" "cai_export_object" {
@@ -83,7 +83,7 @@ resource "google_cloudfunctions2_function" "cai_export_function" {
 data "archive_file" "access_analyzer_zip" {
   type        = "zip"
   output_path = "/tmp/access-analyzer.zip"
-  source_dir  = var.path_prefix ? "${var.path_prefix}/src/access-analyzer" : "${path.module}../../../../src/access-analyzer/"
+  source_dir  = var.path_prefix != "" ? "${var.path_prefix}/src/access-analyzer" : "${path.module}../../../../src/access-analyzer/"
 }
 
 resource "google_storage_bucket_object" "access_analyzer_object" {
