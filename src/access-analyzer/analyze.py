@@ -82,7 +82,9 @@ def get_recommendations(project_id, sa_email):
                     "recommenderDescription": recommendation["description"],
                     "recommenderRevokedIamPermissionsCount": recommendation[
                         "primaryImpact"
-                    ]["securityProjection"]["details"].get("revokedIamPermissionsCount", 0),
+                    ]["securityProjection"]["details"].get(
+                        "revokedIamPermissionsCount", 0
+                    ),
                     "recommenderPriority": recommendation["priority"],
                     "associatedRecommendation": recommendation["name"],
                 }
