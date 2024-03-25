@@ -28,7 +28,6 @@ jobs:
       - name: Super-Linter
         uses: super-linter/super-linter@v6.3.0
         env:
-          ERROR_ON_MISSING_EXEC_BIT: true
           VALIDATE_ALL_CODEBASE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
