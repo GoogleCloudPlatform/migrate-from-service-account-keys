@@ -21,7 +21,7 @@ Google Cloud provides several services to help you assess where and how service 
 
 The following diagram shows an example implementation of this data pipeline.
 
-<img src="images/architecture.png">
+<img src="images/architecture.png" alt="Architectuctural diagram of the data pipeline">
 
 The preceding diagram shows the following:
 - Cloud Scheduler triggers a daily workflow.
