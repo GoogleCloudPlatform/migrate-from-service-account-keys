@@ -57,81 +57,117 @@ The following sections introduce the steps necessary to deploy this sample code.
 
 4. Enable the Cloud Resource Manager API by running the following command in your terminal. Most API enablement is managed in the Terraform code, but this API is a prerequisite for this code sample to run properly.
 
-```bash
-gcloud services enable cloudresourcemanager.googleapis.com
-```
+    ```bash
+    gcloud services enable cloudresourcemanager.googleapis.com
+    ```
 
 5. Grant IAM roles at the project level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the project.
    - Replace `PROJECT_ID` with your project ID.
    - Replace `PRINCIPAL`with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
-```bash
-cat << EOF > project_roles.txt
-roles/bigquery.admin
-roles/cloudfunctions.admin
-roles/cloudscheduler.admin
-roles/iam.serviceAccountAdmin
-roles/iam.serviceAccountUser
-roles/resourcemanager.projectIamAdmin
-roles/serviceusage.serviceUsageAdmin
-roles/storage.admin
-roles/workflows.admin
-EOF
+    
+   ```bash
+    cat << EOF > project_roles.txt
+    roles/bigquery.admin
+    roles/cloudfunctions.admin
+    roles/cloudscheduler.admin
+    roles/iam.serviceAccountAdmin
+    roles/iam.serviceAccountUser
+    roles/resourcemanager.projectIamAdmin
+    roles/serviceusage.serviceUsageAdmin
+    roles/storage.admin
+    roles/workflows.admin
+    EOF
+    
+    #replace this with your project ID
+    export PROJECT_ID=<PROJECT_ID>
+    #replace this with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
+    export PRINCIPAL=<YOUR_IDENTITY>
+    
+    for ROLE in $(cat project_roles.txt)
+    do
+      gcloud projects add-iam-policy-binding $PROJECT_ID --member=$PRINCIPAL --role=$ROLE
+    done
+    ```
 
-#replace this with your project ID
-export PROJECT_ID=<PROJECT_ID>
-#replace this with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
-export PRINCIPAL=<YOUR_IDENTITY>
-
-for ROLE in $(cat project_roles.txt)
-do
-  gcloud projects add-iam-policy-binding $PROJECT_ID --member=$PRINCIPAL --role=$ROLE
-done
-```
-
-5. Grant roles at the organization level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the organization.
+6. Grant roles at the organization level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the organization.
    - Note: If you don't have the ability to grant roles at the organization level, you will need to take additional manual steps in the Terraform deployment stage and work with your organization admin to manually configure org-level IAM policies and enable services.
    - Replace `ORG_ID` with your organization ID.
    - Replace `PRINCIPAL`with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
 
-```bash
-cat << EOF > org_roles.txt
-roles/iam.organizationRoleAdmin
-roles/resourcemanager.organizationAdmin
-EOF
+    ```bash
+    cat << EOF > org_roles.txt
+    roles/iam.organizationRoleAdmin
+    roles/resourcemanager.organizationAdmin
+    EOF
+    
+    #replace this with your org ID
+    export ORG_ID=<ORG_ID>
+    #replace this with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
+    export PRINCIPAL=<YOUR_IDENTITY>
+    
+    for ROLE in $(cat org_roles.txt)
+    do
+      gcloud organizations add-iam-policy-binding $ORG_ID --member=$PRINCIPAL --role=$ROLE
+    done
+    ```
 
-#replace this with your org ID
-export ORG_ID=<ORG_ID>
-#replace this with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
-export PRINCIPAL=<YOUR_IDENTITY>
+7. Run the following bootstrap script to enable necessary APIs across all projects in your organization. Although the services required by your Terraform deployment are enabled in a single project as part of the Terraform code, querying data from the Recommender and Policy Analyzer APIs requires an additional enablement step for other projects.
 
-for ROLE in $(cat org_roles.txt)
-do
-  gcloud organizations add-iam-policy-binding $ORG_ID --member=$PRINCIPAL --role=$ROLE
-done
-```
+    ```bash
+    # Loop through all projects in the organization
+    for PROJECT in $(gcloud alpha projects list --organization=$ORG_ID --format="value(projectId)")
+    do
+        # Enable Recommender API for each project
+        gcloud services enable recommender.googleapis.com policyanalyzer.googleapis.com --project=$PROJECT
+        echo "Recommender and Policy Analyzer APIs enabled for project: $PROJECT"
+    done
+    ```
+    
+    Consider how you will enable these services in future projects as well. It is recommended to enable these services consistently as part of your standard process or automation for project creation.
 
-6. Run the following bootstrap script to enable necessary APIs across all projects in your organization. Although the services required by your Terraform deployment are enabled in a single project as part of the Terraform code, querying data from the Recommender and Policy Analyzer APIs requires an additional enablement step for other projects.
+### Option A: Use this repository as a module
 
-```bash
-# Loop through all projects in the organization
-for PROJECT in $(gcloud alpha projects list --organization=$ORG_ID --format="value(projectId)")
-do
-    # Enable Recommender API for each project
-    gcloud services enable recommender.googleapis.com policyanalyzer.googleapis.com --project=$PROJECT
-    echo "Recommender and Policy Analyzer APIs enabled for project: $PROJECT"
-done
-```
+If you're using authoritative IAM bindings you might want to consider deploying this to a separate project.
 
-Consider how you will enable these services in future projects as well. It is recommended to enable these services consistently as part of your standard process or automation for project creation.
+1. Reference this repository as a module in your Terraform code:
 
-### Set Terraform variables and deploy
+    ```hcl
+    module "service_account_key_usage" {
+        source = "github.com/GoogleCloudPlatform/migrate-from-service-account-keys//terraform"  # Optionally add `?ref=<full_commit_sha> (recommended)
+   
+        org_id      = "<organisation_id>"
+        project_id  = "<project_id>"
+        region      = "<workflows/scheduler/functions-region>"
+        bq_location = "<bigquery_location>"
+        provision_org_iam = false  # can be true if you don't use authoritative IAM bindings on organization level
+    }
+    ```
+
+2. (Optional) If you are unable to grant IAM roles at the organization node, set the variable `provision_org_iam: false`. When this variable is set, Terraform will not deploy the following IAM resources:
+
+    ```bash
+    resource "google_organization_iam_custom_role" "custom_cai_export_org_role" { ... }
+    resource "google_organization_iam_binding" "cai_export_organization_binding" { ... }
+    resource "google_organization_iam_member" "access_analyzer_organization_binding" { ... }
+    ```
+
+   In this scenario, work with your organization administrators to grant these IAM roles after you deploy resources from Terraform.
+
+3. Run the following in the directory containing your Terraform code:
+
+    ```bash
+    terraform init
+    terraform apply
+    ```
+
+### Option B: Set Terraform variables and deploy
 
 1. From your terminal, clone this repository and navigate into the `/terraform` directory by running the following commands:
 
-```bash
-git clone https://github.com/GoogleCloudPlatform/migrate-from-service-account-keys
-cd migrate-from-service-account-keys/terraform
-```
+    ```bash
+    git clone https://github.com/GoogleCloudPlatform/migrate-from-service-account-keys
+    cd migrate-from-service-account-keys/terraform
+    ```
 
 2. Use your preferred editor to modify the `terraform.tfvars` file. Set `org_id` and `project_id` with the specific values for your environment.
 
@@ -139,20 +175,20 @@ cd migrate-from-service-account-keys/terraform
 
 4. (Optional) If you are unable to grant IAM roles at the organization node, set the variable `provision_org_iam: false`. When this variable is set, Terraform will not deploy the following IAM resources:
 
-```bash
-resource "google_organization_iam_custom_role" "custom_cai_export_org_role" { ... }
-resource "google_organization_iam_binding" "cai_export_organization_binding" { ... }
-resource "google_organization_iam_member" "access_analyzer_organization_binding" { ... }
-```
+    ```bash
+    resource "google_organization_iam_custom_role" "custom_cai_export_org_role" { ... }
+    resource "google_organization_iam_binding" "cai_export_organization_binding" { ... }
+    resource "google_organization_iam_member" "access_analyzer_organization_binding" { ... }
+    ```
 
-In this scenario, work with your organization administrators to grant these IAM roles after you deploy resources from Terraform.
+    In this scenario, work with your organization administrators to grant these IAM roles after you deploy resources from Terraform.
 
 5. Run the following within the `/terraform` directory:
 
-```bash
-terraform init
-terraform apply
-```
+    ```bash
+    terraform init
+    terraform apply
+    ```
 
 ### (optional) Manually trigger the scheduled workflow
 
