@@ -53,6 +53,8 @@ resource "google_workflows_workflow" "cai_sa_workflow" {
             call: http.get
             args:
                 url: ${google_cloudfunctions2_function.cai_export_function.service_config[0].uri}
+                headers:
+                    User-Agent: "cloud-solutions/migrate-from-service-account-keys-v1"
                 auth:
                     type: OIDC
                     audience: ${google_cloudfunctions2_function.cai_export_function.service_config[0].uri}
@@ -66,6 +68,8 @@ resource "google_workflows_workflow" "cai_sa_workflow" {
             call: http.get
             args:
                 url: $${"https://cloudasset.googleapis.com/v1/" + operationId.body.operationId}
+                headers:
+                    User-Agent: "cloud-solutions/migrate-from-service-account-keys-v1"
                 auth:
                     type: OAuth2
             result: jobStatus
@@ -88,6 +92,8 @@ resource "google_workflows_workflow" "cai_sa_workflow" {
             call: http.get
             args:
                 url: ${google_cloudfunctions2_function.access_analyzer_function.service_config[0].uri}
+                headers:
+                    User-Agent: "cloud-solutions/migrate-from-service-account-keys-v1"
                 auth:
                     type: OIDC
                     audience: ${google_cloudfunctions2_function.access_analyzer_function.service_config[0].uri}
