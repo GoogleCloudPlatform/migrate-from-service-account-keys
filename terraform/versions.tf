@@ -33,4 +33,7 @@ terraform {
       version = ">= 3.5.1, <4.0.0"
     }
   }
+  provider_meta "google" {
+    module_name = "cloud-solutions/migrate-from-service-account-keys-v1"
+  }
 }
