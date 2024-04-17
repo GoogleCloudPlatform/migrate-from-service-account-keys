@@ -88,7 +88,7 @@ do
 done
 ```
 
-5. Grant roles at the organization level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the organization.
+6. Grant roles at the organization level. Run the following command to [grant IAM roles](https://cloud.google.com/iam/docs/granting-changing-revoking-access#single-role) and ensure that the principal deploying this repository has the minimum necessary privilege at the organization.
    - Note: If you don't have the ability to grant roles at the organization level, you will need to take additional manual steps in the Terraform deployment stage and work with your organization admin to manually configure org-level IAM policies and enable services.
    - Replace `ORG_ID` with your organization ID.
    - Replace `PRINCIPAL`with the identity used to deploy the repository, in the format "user:EMAIL_ADDRESS" or "serviceAccount:SERVICE_ACCOUNT_EMAIL_ADDRESS"
@@ -110,7 +110,7 @@ do
 done
 ```
 
-6. Run the following bootstrap script to enable necessary APIs across all projects in your organization. Although the services required by your Terraform deployment are enabled in a single project as part of the Terraform code, querying data from the Recommender and Policy Analyzer APIs requires an additional enablement step for other projects.
+7. Run the following bootstrap script to enable necessary APIs across all projects in your organization. Although the services required by your Terraform deployment are enabled in a single project as part of the Terraform code, querying data from the Recommender and Policy Analyzer APIs requires an additional enablement step for other projects.
 
 ```bash
 # Loop through all projects in the organization
